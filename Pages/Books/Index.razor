@@ -74,7 +74,7 @@
                             <img src="@book.ImageUrl" sizes="200 300" alt="Book cover">
                             <div>
                                 <h5>@book.Title</h5>
-                                <p><strong>by @book.Authors</strong></p>
+                                <p><strong>by @AuthorsFormatter.Format(book.Authors)</strong></p>
                                 <p class="text-muted">Published by @book.PublishInfo.ToString()</p>
                                 <p>Review:</p>
                                 <ul>
