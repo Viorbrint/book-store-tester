@@ -1,0 +1,107 @@
+﻿@page "/"
+@using System.Collections.Generic
+
+<div class="container mt-4">
+    <!-- Верхняя панель -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-3">
+            <label for="language" class="form-label me-2">Language</label>
+            <select id="language" class="form-select d-inline-block w-auto" @bind="SelectedLocale">
+                @foreach (var locale in AvailableLocales)
+                {
+                    <option value="@locale">@locale</option>
+                }
+            </select>
+        </div>
+
+        <!-- Seed с кнопкой рандомизации -->
+        <div class="d-flex align-items-center gap-2">
+            <label for="seed-input" class="form-label me-2">Seed</label>
+            <input id="seed-input" type="number" class="form-control w-auto" @bind="SeedValue">
+            <button class="btn btn-outline-secondary" @onclick="RandomizeSeed">
+                <i class="bi bi-shuffle"></i>
+            </button>
+        </div>
+
+        <!-- Слайдер лайков с отображением значения -->
+        <div class="d-flex align-items-center gap-3">
+            <label for="likes-slider" class="form-label me-2">Likes</label>
+            <input id="likes-slider" type="range" class="form-range w-auto" min="0" max="100" @bind="LikesPerBook">
+            <span>@LikesPerBook</span> <!-- Значение лайков -->
+            <label for="review-filter" class="form-label me-2">Review</label>
+            <input id="review-filter" type="number" class="form-control w-auto" step="0.1" @bind="ReviewPerBook">
+        </div>
+    </div>
+
+    <!-- Таблица -->
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th></th> <!-- Колонка для стрелочки -->
+            <th>#</th>
+            <th>ISBN</th>
+            <th>Title</th>
+            <th>Author(s)</th>
+            <th>Publisher</th>
+        </tr>
+        </thead>
+        <tbody>
+    <Virtualize ItemsProvider="LoadBooks" Context="book">
+        @foreach (var book in Books)
+        {
+            <tr @onclick="() => ToggleDetails(book.ISBN)">
+                <td>
+                    <span class="arrow">
+                        @if (ExpandedBook == book.ISBN)
+                        {
+                            <i class="bi bi-chevron-down"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-chevron-right"></i>
+                        }
+                    </span>
+                </td>
+                <td>1</td>
+                <td>@book.ISBN</td>
+                <td>@book.Title</td>
+                <td>@book.Authors.ToString()</td>
+                <td>@book.PublishInfo.ToString()</td>
+            </tr>
+            @if (ExpandedBook == book.ISBN)
+            {
+                <tr class="details-row">
+                    <td colspan="6"> <!-- Увеличили на одну колонку для стрелки -->
+                        <div class="details-container">
+                            <img src="@book.ImageUrl" sizes="200 300" alt="Book cover">
+                            <div>
+                                <h5>@book.Title</h5>
+                                <p><strong>by @book.Authors</strong></p>
+                                <p class="text-muted">Published by @book.PublishInfo.ToString()</p>
+                                <p>Review:</p>
+                                <ul>
+                                    @foreach (var review in book.Reviews)
+                                    {
+                                        <li class="review">@review</li>
+                                    }
+                                </ul>
+                                <p class="likes">@book.Likes likes</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+</Virtualize>
+        </tbody>
+    </table>
+    <!-- Индикатор загрузки -->
+    @if (IsLoading)
+    {
+        <div class="text-center mt-3">
+            <button class="btn btn-outline-secondary" disabled>
+                <span class="spinner-border spinner-border-sm"></span> Loading...
+            </button>
+        </div>
+    }
+</div>
