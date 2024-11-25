@@ -15,7 +15,19 @@ public partial class Index : ComponentBase
         set { _selectedLocale = value; }
     }
 
-    private int LikesMult10 { get; set; } = 50;
+    private int _likesMult10 = 50;
+    private int LikesMult10
+    {
+        get => _likesMult10;
+        set
+        {
+            _likesMult10 = value;
+            foreach (var book in Books)
+            {
+                book.Likes = Times.ToInt(_likesMult10 / 10.0);
+            }
+        }
+    }
 
     private double Likes
     {
@@ -35,7 +47,14 @@ public partial class Index : ComponentBase
     private double Reviews
     {
         get => _reviews;
-        set { _reviews = value; }
+        set
+        {
+            _reviews = value;
+            foreach (var book in Books)
+            {
+                book.setReviews(Times.ToInt(value));
+            }
+        }
     }
 
     private IEnumerable<Book> Books { get; set; } = [];
@@ -46,12 +65,25 @@ public partial class Index : ComponentBase
 
     private Faker _faker = null!;
 
+    // private Func<T> NonIntTimes<T>(double n, Func<T> f) {
+    //     if(n < 0) {
+    //         throw new Exception("Times must be non-negative");
+    //     }
+    //
+    //     return (T arg) => {
+    //     for(int i = 0; i < Math.Floor(n); i++) {
+    //
+    //     }
+    //     }
+    // }
+
+
     protected override Task OnInitializedAsync()
     {
         System.Console.WriteLine("Initialized");
         Randomizer.Seed = new Random(8675309);
         _faker = new Faker(LocaleHelper.GetCode(SelectedLocale));
-        Books = Book.GenerateBooks(20, _faker, Likes, Reviews).ToList();
+        Books = Book.GenerateBooks(20, _faker, Times.ToInt(Likes), Times.ToInt(Reviews)).ToList();
         return Task.CompletedTask;
     }
 

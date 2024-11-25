@@ -10,16 +10,19 @@ public class Book
 
     public PublishInfo PublishInfo { get; }
 
-    public double Likes { get; }
+    public int Likes { get; set; }
 
     public string ImageUrl { get; }
 
-    public List<Review> Reviews { get; }
+    public List<Review> Reviews { get; private set; }
 
     public Authors Authors { get; }
 
-    public Book(Faker faker, double likes, double reviews)
+    private Faker Faker { get; set; }
+
+    public Book(Faker faker, int likes, int reviews)
     {
+        Faker = faker;
         System.Console.WriteLine(faker.IndexFaker);
         System.Console.WriteLine(likes);
         System.Console.WriteLine(reviews);
@@ -27,23 +30,17 @@ public class Book
         Title = faker.Commerce.Product();
         Authors = new Authors(faker);
         PublishInfo = new PublishInfo(faker);
-        Likes = generateInt(likes);
-        Reviews = Review.GenerateReviews(generateInt(reviews), faker).ToList();
+        Likes = likes;
         ImageUrl = faker.Image.LoremFlickrUrl(200, 300, "cover");
+        setReviews(reviews);
     }
 
-    private int generateInt(double forOne)
+    public void setReviews(int amount)
     {
-        // TODO: better and another class
-        return (int)Math.Floor(forOne);
+        Reviews = Review.GenerateReviews(amount, Faker).ToList();
     }
 
-    public static IEnumerable<Book> GenerateBooks(
-        int amount,
-        Faker faker,
-        double likes,
-        double reviews
-    )
+    public static IEnumerable<Book> GenerateBooks(int amount, Faker faker, int likes, int reviews)
     {
         System.Console.WriteLine("GenerateBooks");
         return Enumerable.Range(1, amount).Select(_ => new Book(faker, likes, reviews));
