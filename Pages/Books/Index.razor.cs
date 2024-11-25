@@ -47,15 +47,16 @@ public partial class Index : ComponentBase
     {
         IsLoading = true;
         Books = Book.GenerateBooks(50, _faker, LikesPerBook, ReviewPerBook);
+        // Randomizer.Seed = new Random(SeedPageCombine(SeedValue, 1));
+
         IsLoading = false;
     }
 
     private void ToggleDetails(string isbn)
     {
         ExpandedBook = ExpandedBook == isbn ? null : isbn;
+        Book book = Books.First(b => b.ISBN == isbn);
     }
-
-    private string GetAuthorsString(IEnumerable<string> authors) => string.Join(", ", authors);
 
     private int _seedValue = 12345;
 

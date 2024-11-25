@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using BookStoreTester.Helpers;
 @using System.Collections.Generic
 
 <div class="container mt-4">
@@ -65,8 +66,8 @@
                 <td>1</td>
                 <td>@book.ISBN</td>
                 <td>@book.Title</td>
-                <td>@book.Authors.ToString()</td>
-                <td>@book.PublishInfo.ToString()</td>
+                <td>@AuthorsFormatter.Format(book.Authors)</td>
+                <td>@PublishInfoFormatter.Format(book.PublishInfo)</td>
             </tr>
             @if (ExpandedBook == book.ISBN)
             {
