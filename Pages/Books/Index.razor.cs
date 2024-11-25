@@ -15,12 +15,11 @@ public partial class Index : ComponentBase
         set { _selectedLocale = value; }
     }
 
-    private double _likes = 0;
+    private int LikesMult10 { get; set; } = 50;
 
     private double Likes
     {
-        get => _likes;
-        set => _likes = value / 10;
+        get => LikesMult10 / 10.0;
     }
 
     private int _seed = 12345;
@@ -61,7 +60,6 @@ public partial class Index : ComponentBase
         System.Console.WriteLine("asdfasdfasd222222222222");
         ExpandedBook = ExpandedBook == isbn ? null : isbn;
     }
-
 
     private void RandomizeSeed()
     {

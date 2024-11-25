@@ -24,8 +24,8 @@
 
         <div class="d-flex align-items-center gap-3">
             <label for="likes-slider" class="form-label me-2">Likes</label>
-            <input id="likes-slider" type="range" class="form-range w-auto" min="0" max="100" @bind="Likes">
-            <span>@Likes</span> 
+            <input id="likes-slider" type="range" class="form-range w-auto" min="0" max="100" @bind="LikesMult10">
+            <span>@Likes.ToString("F1")</span> 
             <label for="review-filter" class="form-label me-2">Review</label>
             <input id="review-filter" type="number" class="form-control w-auto" step="0.1" @bind="Reviews">
         </div>
