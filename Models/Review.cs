@@ -10,16 +10,18 @@ namespace BookStoreTester.Models
 
         public string Company { get; }
 
-        public Review(Faker faker)
+        private Faker Faker { get; } = new Faker();
+
+        public Review()
         {
-            Author = faker.Random.ReplaceNumbers(faker.Name.FullName());
-            Text = faker.Lorem.Sentence();
-            Company = faker.Company.CompanyName();
+            Author = Faker.Random.ReplaceNumbers(Faker.Name.FullName());
+            Text = Faker.Lorem.Sentence();
+            Company = Faker.Company.CompanyName();
         }
 
-        public static IEnumerable<Review> GenerateReviews(int amount, Faker faker)
+        public static IEnumerable<Review> GenerateReviews(int amount)
         {
-            return Enumerable.Range(1, amount).Select(_ => new Review(faker));
+            return Enumerable.Range(1, amount).Select(_ => new Review());
         }
     }
 }

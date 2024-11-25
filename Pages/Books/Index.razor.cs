@@ -81,9 +81,8 @@ public partial class Index : ComponentBase
     protected override Task OnInitializedAsync()
     {
         System.Console.WriteLine("Initialized");
-        Randomizer.Seed = new Random(8675309);
-        _faker = new Faker(LocaleHelper.GetCode(SelectedLocale));
-        Books = Book.GenerateBooks(20, _faker, Times.ToInt(Likes), Times.ToInt(Reviews)).ToList();
+        Randomizer.Seed = new Random(Seed);
+        Books = Book.GenerateBooks(20, Times.ToInt(Likes), Times.ToInt(Reviews)).ToList();
         return Task.CompletedTask;
     }
 
