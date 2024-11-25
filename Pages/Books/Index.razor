@@ -7,7 +7,7 @@
         <div class="d-flex align-items-center gap-3">
             <label for="language" class="form-label me-2">Language</label>
             <select id="language" class="form-select d-inline-block w-auto" @bind="SelectedLocale">
-                @foreach (var locale in AvailableLocales)
+                @foreach (var locale in LocaleHelper.GetAvailable())
                 {
                     <option value="@locale">@locale</option>
                 }
@@ -16,7 +16,7 @@
 
         <div class="d-flex align-items-center gap-2">
             <label for="seed-input" class="form-label me-2">Seed</label>
-            <input id="seed-input" type="number" class="form-control w-auto" @bind="SeedValue">
+            <input id="seed-input" type="number" class="form-control w-auto" @bind="Seed">
             <button class="btn btn-outline-secondary" @onclick="RandomizeSeed">
                 <i class="bi bi-shuffle"></i>
             </button>
@@ -24,10 +24,10 @@
 
         <div class="d-flex align-items-center gap-3">
             <label for="likes-slider" class="form-label me-2">Likes</label>
-            <input id="likes-slider" type="range" class="form-range w-auto" min="0" max="100" @bind="LikesPerBook">
-            <span>@LikesPerBook</span> 
+            <input id="likes-slider" type="range" class="form-range w-auto" min="0" max="100" @bind="Likes">
+            <span>@Likes</span> 
             <label for="review-filter" class="form-label me-2">Review</label>
-            <input id="review-filter" type="number" class="form-control w-auto" step="0.1" @bind="ReviewPerBook">
+            <input id="review-filter" type="number" class="form-control w-auto" step="0.1" @bind="Reviews">
         </div>
     </div>
 
@@ -43,10 +43,11 @@
         </tr>
         </thead>
         <tbody>
-    <Virtualize ItemsProvider="LoadBooks" Context="book">
+    @* <Virtualize ItemsProvider="LoadBooks" Context="book"> *@
         @foreach (var book in Books)
         {
-            <tr @onclick="() => ToggleDetails(book.ISBN)">
+            @* TODO: maybe key is bad  *@
+            <tr @onclick="() => ToggleDetails(book.ISBN)" @key="book.ISBN"> 
                 <td>
                     <span class="arrow">
                         @if (ExpandedBook == book.ISBN)
@@ -79,7 +80,10 @@
                                 <ul>
                                     @foreach (var review in book.Reviews)
                                     {
-                                        <li class="review">@review</li>
+                                        <li class="review">
+                                            <p>@review.Text</p>
+                                            &mdash; @ReviewFormatter.FormatAuthor(review)
+                                        </li>
                                     }
                                 </ul>
                                 <p class="likes">@book.Likes likes</p>
