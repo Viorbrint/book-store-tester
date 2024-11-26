@@ -22,9 +22,6 @@ public class Book
 
     public Book(int likes, int reviews)
     {
-        System.Console.WriteLine(Faker.IndexFaker);
-        System.Console.WriteLine(likes);
-        System.Console.WriteLine(reviews);
         ISBN = Faker.Random.ReplaceNumbers("978-#-##-######-#");
         Title = Faker.Commerce.Product();
         Authors = new Authors(Faker);

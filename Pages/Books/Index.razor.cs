@@ -65,30 +65,8 @@ public partial class Index : ComponentBase
 
     private Faker _faker = null!;
 
-    // private Func<T> NonIntTimes<T>(double n, Func<T> f) {
-    //     if(n < 0) {
-    //         throw new Exception("Times must be non-negative");
-    //     }
-    //
-    //     return (T arg) => {
-    //     for(int i = 0; i < Math.Floor(n); i++) {
-    //
-    //     }
-    //     }
-    // }
-
-
-    protected override Task OnInitializedAsync()
-    {
-        System.Console.WriteLine("Initialized");
-        Randomizer.Seed = new Random(Seed);
-        Books = Book.GenerateBooks(20, Times.ToInt(Likes), Times.ToInt(Reviews)).ToList();
-        return Task.CompletedTask;
-    }
-
     private void ToggleDetails(string isbn)
     {
-        System.Console.WriteLine("asdfasdfasd222222222222");
         ExpandedBook = ExpandedBook == isbn ? null : isbn;
     }
 
