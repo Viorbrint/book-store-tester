@@ -43,11 +43,8 @@
         </tr>
         </thead>
         <tbody>
-    @* <Virtualize ItemsProvider="LoadBooks" Context="book"> *@
-        @foreach (var book in Books)
-        {
-            @* TODO: maybe key is bad  *@
-            <tr @onclick="() => ToggleDetails(book.ISBN)" @key="book.ISBN"> 
+    <Virtualize ItemsProvider="LoadBooks" Context="book" @ref="_virtualizeRef" OverscanCount="20">
+            <tr @onclick="() => ToggleDetails(book.ISBN)" @key="string.Concat(book.ISBN, book.Title, book.Authors, book.PublishInfo)"> 
                 <td>
                     <span class="arrow">
                         @if (ExpandedBook == book.ISBN)
@@ -92,8 +89,7 @@
                     </td>
                 </tr>
             }
-        }
-@* </Virtualize> *@
+</Virtualize>
         </tbody>
     </table>
 
