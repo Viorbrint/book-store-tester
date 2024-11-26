@@ -93,7 +93,6 @@ public partial class Index : ComponentBase
     // TODO: Убрать это куда-нибудь
     private static int SeedPageCombine(int seed, int page)
     {
-        // TODO: Make it better
-        return seed + page;
+        return HashCode.Combine(seed, page);
     }
 }
