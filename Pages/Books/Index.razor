@@ -1,101 +1,199 @@
 ﻿@page "/"
 @using BookStoreTester.Helpers;
 @using System.Collections.Generic
+@using Microsoft.JSInterop
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center gap-3">
-            <label for="language" class="form-label me-2">Language</label>
-            <select id="language" class="form-select d-inline-block w-auto" @bind="SelectedLocale">
-                @foreach (var locale in LocaleHelper.GetAvailable())
-                {
-                    <option value="@locale">@locale</option>
-                }
-            </select>
+    <!-- Settings Panel - Stick to the top -->
+    <div class="row align-items-center mb-3 sticky-lg-top bg-white shadow-sm z-index-1 p-3">
+        <!-- Фильтры и настройки -->
+        <div class="col-lg-9 col-md-12 d-flex flex-wrap align-items-center gap-3">
+            <!-- Language -->
+            <div class="d-flex flex-column align-items-start">
+                <label for="language" class="form-label">Language</label>
+                <select id="language" class="form-select w-auto" @bind="SelectedLocale">
+                    @foreach (var locale in LocaleHelper.GetAvailable())
+                    {
+                        <option value="@locale">@locale</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Seed -->
+            <div class="d-flex flex-column align-items-start">
+                <label for="seed-input" class="form-label">Seed</label>
+                <div class="input-group">
+                    <input id="seed-input" type="number" class="form-control" @bind="Seed">
+                    <button class="btn btn-outline-secondary" @onclick="RandomizeSeed">
+                        <i class="bi bi-shuffle"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Likes -->
+            <div class="d-flex flex-column align-items-start">
+                <label for="likes-slider" class="form-label">Likes</label>
+                <div class="d-flex align-items-center gap-2">
+                    <input id="likes-slider" type="range" class="form-range" min="0" max="100" @bind="LikesMult10" style="width: 150px;">
+                    <span>@Likes.ToString("F1")</span>
+                </div>
+            </div>
+
+            <!-- Review -->
+            <div class="d-flex flex-column align-items-start">
+                <label for="review-filter" class="form-label">Review</label>
+                <input id="review-filter" type="number" class="form-control w-auto" step="0.1" @bind="Reviews">
+            </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-            <label for="seed-input" class="form-label me-2">Seed</label>
-            <input id="seed-input" type="number" class="form-control w-auto" @bind="Seed">
-            <button class="btn btn-outline-secondary" @onclick="RandomizeSeed">
-                <i class="bi bi-shuffle"></i>
+        <!-- Кнопки действий -->
+        <div class="col-lg-3 col-md-12 d-flex flex-wrap justify-content-lg-end justify-content-start align-items-center gap-3 mt-lg-0 mt-3">
+            <!-- View Mode Toggle -->
+            <div class="btn-group" role="group" aria-label="View toggle">
+                <button class="btn btn-outline-primary @(!IsGalleryView ? "active" : "")" @onclick="() => ToggleView(false)">
+                    Table View
+                </button>
+                <button class="btn btn-outline-primary @(IsGalleryView ? "active" : "")" @onclick="() => ToggleView(true)">
+                    Gallery View
+                </button>
+            </div>
+
+            <!-- Export to CSV -->
+            <button class="btn btn-outline-success" @onclick="ExportToCSV">
+                <i class="bi bi-download"></i> Export to CSV
             </button>
-        </div>
-
-        <div class="d-flex align-items-center gap-3">
-            <label for="likes-slider" class="form-label me-2">Likes</label>
-            <input id="likes-slider" type="range" class="form-range w-auto" min="0" max="100" @bind="LikesMult10">
-            <span>@Likes.ToString("F1")</span> 
-            <label for="review-filter" class="form-label me-2">Review</label>
-            <input id="review-filter" type="number" class="form-control w-auto" step="0.1" @bind="Reviews">
         </div>
     </div>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th></th> 
-            <th>#</th>
-            <th>ISBN</th>
-            <th>Title</th>
-            <th>Author(s)</th>
-            <th>Publisher</th>
-        </tr>
-        </thead>
-        <tbody>
-    <Virtualize ItemsProvider="LoadBooks" Context="book" @ref="_virtualizeRef" OverscanCount="20">
-            <tr @onclick="() => ToggleDetails(book.ISBN)" @key="string.Concat(book.ISBN, book.Title)"> 
-                <td>
-                    <span class="arrow">
+    @if (IsGalleryView)
+    {
+        <!-- Gallery View -->
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach(var book in Books)
+            {
+                <div class="col">
+                    <div class="card">
+                        <img src="@book.ImageUrl" alt="Book @(Books.IndexOf(book) + 1) cover" class="card-img-top" style="height: 250px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <p class="card-text">
+                                <strong>by @AuthorsFormatter.Format(book.Authors)</strong><br>
+                                <small>@PublishInfoFormatter.Format(book.PublishInfo)</small>
+                            </p>
+                            <p class="card-text text-muted">ISBN: @book.ISBN</p>
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-outline-secondary" @onclick="() => ToggleDetails(book.ISBN)">
+                                    @((ExpandedBook == book.ISBN ? "Hide Details" : "Show Details"))
+                                </button>
+                                <span class="text-success">@book.Likes likes</span>
+                            </div>
+                        </div>
+
                         @if (ExpandedBook == book.ISBN)
                         {
-                            <i class="bi bi-chevron-down"></i>
-                        }
-                        else
-                        {
-                            <i class="bi bi-chevron-right"></i>
-                        }
-                    </span>
-                </td>
-                <td>1</td>
-                <td>@book.ISBN</td>
-                <td>@book.Title</td>
-                <td>@AuthorsFormatter.Format(book.Authors)</td>
-                <td>@PublishInfoFormatter.Format(book.PublishInfo)</td>
-            </tr>
-            @if (ExpandedBook == book.ISBN)
-            {
-                <tr class="details-row">
-                    <td colspan="6">
-                        <div class="details-container">
-                            <img src="@book.ImageUrl" sizes="200 300" alt="Book cover">
-                            <div>
-                                <h5>@book.Title</h5>
-                                <p><strong>by @AuthorsFormatter.Format(book.Authors)</strong></p>
-                                <p class="text-muted">Published by @book.PublishInfo.ToString()</p>
-                                <p>Review:</p>
-                                <ul>
+                            <div class="card-footer">
+                                <ul class="list-unstyled">
                                     @foreach (var review in book.Reviews)
                                     {
-                                        <li class="review">
-                                            <p>@review.Text</p>
-                                            &mdash; @ReviewFormatter.FormatAuthor(review)
+                                        <li>
+                                            <blockquote class="blockquote">
+                                                <p>@review.Text</p>
+                                                <footer class="blockquote-footer">@ReviewFormatter.FormatAuthor(review)</footer>
+                                            </blockquote>
                                         </li>
                                     }
                                 </ul>
-                                <p class="likes">@book.Likes likes</p>
                             </div>
-                        </div>
-                    </td>
-                </tr>
+                        }
+                    </div>
+                </div>
             }
-</Virtualize>
-        </tbody>
-    </table>
-
-    @if (IsLoading)
+        </div>
+    }
+    else
     {
-        <div class="text-center mt-3">
+        <!-- Table View -->
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">#</th>
+                    <th scope="col">ISBN</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Author(s)</th>
+                    <th scope="col">Publisher</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var book in Books)
+                {
+                    <tr class="align-middle" @onclick="() => ToggleDetails(book.ISBN)" @key="string.Concat(book.ISBN, book.Title)">
+                        <td class="text-center">
+                            <i class="bi @((ExpandedBook == book.ISBN ? "bi-chevron-down" : "bi-chevron-right"))"></i>
+                        </td>
+                        <td>@(Books.IndexOf(book) + 1)</td>
+                        <td>@book.ISBN</td>
+                        <td>@book.Title</td>
+                        <td>@AuthorsFormatter.Format(book.Authors)</td>
+                        <td>@PublishInfoFormatter.Format(book.PublishInfo)</td>
+                    </tr>
+
+                    @if (ExpandedBook == book.ISBN)
+                    {
+                        <tr class="details-row">
+                            <td colspan="6" class="p-4">
+                                <div class="d-flex gap-4">
+                                    <!-- Картинка обложки с лайками под ней -->
+                                    <div class="d-flex flex-column align-items-center">
+                                        <img src="@book.ImageUrl" alt="Book cover" class="img-thumbnail" style="height: 250px; width: auto;">
+                                        
+                                        <!-- Лайки под картинкой -->
+                                        <div class="mt-3 d-flex align-items-center justify-content-center bg-primary text-white rounded-pill px-3 py-2">
+                                            <i class="bi bi-hand-thumbs-up me-2"></i>
+                                            <span>@book.Likes</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex-grow-1">
+                                        <!-- Название книги -->
+                                        <h4 class="mb-0 fw-bold">@book.Title</h4>
+                                        <p class="fs-6 fw-bold mb-1">by <i>@AuthorsFormatter.Format(book.Authors)</i></p>
+                                        <p class="text-muted fs-6 mb-4">@PublishInfoFormatter.Format(book.PublishInfo)</p>
+
+                                        <!-- Отзывы -->
+                                        <div class="reviews-section">
+                                            <p class="fw-bold fs-6 mb-0">Review</p>
+                                            @if (book.Reviews.Any())
+                                            {
+                                                <ul class="list-unstyled">
+                                                    @foreach (var review in book.Reviews)
+                                                    {
+                                                        <li class="review-item mb-4">
+                                                            <blockquote class="blockquote fs-6">
+                                                                <p class="mb-3">@review.Text</p>
+                                                                <footer class="blockquote-footer text-muted">
+                                                                    @ReviewFormatter.FormatAuthor(review)
+                                                                </footer>
+                                                            </blockquote>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No reviews available.</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+        <div class="text-center mb-3 mt-3">
             <button class="btn btn-outline-secondary" disabled>
                 <span class="spinner-border spinner-border-sm"></span> Loading...
             </button>

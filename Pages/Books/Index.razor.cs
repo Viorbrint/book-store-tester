@@ -1,13 +1,20 @@
+using System.Text;
+using Bogus;
 using BookStoreTester.Helpers;
 using BookStoreTester.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web.Virtualization;
+using Microsoft.JSInterop;
 
 namespace BookStoreTester.Pages.Books;
 
 public partial class Index : ComponentBase
 {
-    private Virtualize<BookDto> _virtualizeRef;
+    private bool IsGalleryView { get; set; } = false;
+
+    private void ToggleView(bool isGallery)
+    {
+        IsGalleryView = isGallery;
+    }
 
     private string _selectedLocale = LocaleHelper.GetDefault();
 
@@ -17,7 +24,8 @@ public partial class Index : ComponentBase
         set
         {
             _selectedLocale = value;
-            _virtualizeRef.RefreshDataAsync();
+            Faker = new Faker(LocaleHelper.GetCode(value));
+            ResetBooks();
         }
     }
 
@@ -32,7 +40,6 @@ public partial class Index : ComponentBase
             {
                 book.Likes = Times.ToInt(_likesMult10 / 10.0);
             }
-            _virtualizeRef.RefreshDataAsync();
         }
     }
 
@@ -49,7 +56,7 @@ public partial class Index : ComponentBase
         set
         {
             _seed = value;
-            _virtualizeRef.RefreshDataAsync();
+            ResetBooks();
         }
     }
 
@@ -63,20 +70,41 @@ public partial class Index : ComponentBase
             _reviews = value;
             foreach (var book in Books)
             {
-                book.Reviews = Review
-                    .GenerateReviews(Times.ToInt(value))
-                    .Select(r => r.ToDto())
-                    .ToList();
+                book.setReviews(Times.ToInt(value), Faker);
             }
-            _virtualizeRef.RefreshDataAsync();
         }
     }
 
-    private IEnumerable<BookDto> Books { get; set; } = [];
+    private List<Book> Books { get; set; } = [];
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = null!;
 
     private string? ExpandedBook { get; set; } = null;
 
-    private bool IsLoading = false;
+    private Faker Faker { get; set; } = new Faker(LocaleHelper.GetCode(LocaleHelper.GetDefault()));
+
+    private async Task ExportToCSV()
+    {
+        // var csv = new StringBuilder();
+        // csv.AppendLine("ISBN,Title,Authors,Publisher,Likes");
+        //
+        // foreach (var book in Books)
+        // {
+        //     var authors = string.Join(", ", book.Authors);
+        //     var likes = book.Likes;
+        //     csv.AppendLine($"{book.ISBN},{book.Title},{authors},{book.PublishInfo},{likes}");
+        // }
+        //
+        // await JSRuntime.InvokeVoidAsync("saveAsFile", "books.csv", csv.ToString());
+        throw new NotImplementedException();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        LoadMoreBooks();
+    }
 
     private void ToggleDetails(string isbn)
     {
@@ -88,31 +116,64 @@ public partial class Index : ComponentBase
         Seed = new Random().Next(0, 100000);
     }
 
-    private async ValueTask<ItemsProviderResult<BookDto>> LoadBooks(ItemsProviderRequest request)
-    {
-        var books = await booksRequest(request.StartIndex / request.Count, request.Count);
+    private int _page = 1;
 
-        Console.WriteLine($"Generated {books.Count()} books:");
-        foreach (var book in books)
+    private int Page
+    {
+        get => _page;
+        set { _page = value; }
+    }
+
+    private const int PageSize = 20;
+
+    private void LoadMoreBooks()
+    {
+        SetRandom();
+        var newBooks = Book.GenerateBooks(
+            PageSize,
+            Times.ToInt(Likes),
+            Times.ToInt(Reviews),
+            Faker
+        );
+        Books.AddRange(newBooks);
+        Page++;
+        StateHasChanged();
+    }
+
+    private void SetRandom()
+    {
+        var bookSeed = Seed ^ Page;
+        Randomizer.Seed = new Random(bookSeed);
+        Faker = new Faker(LocaleHelper.GetCode(SelectedLocale));
+    }
+
+    private void ResetBooks()
+    {
+        Page = 1;
+        Books = [];
+
+        LoadMoreBooks();
+    }
+
+    [JSInvokable("OnScrollAsync")]
+    public static void OnScrollAsync()
+    {
+        var instance = Instance;
+        if (instance != null)
         {
-            Console.WriteLine($"ISBN: {book.ISBN}, Title: {book.Title}");
+            instance.LoadMoreBooks();
         }
-
-        return new ItemsProviderResult<BookDto>(books, 1000);
     }
 
-    [Inject]
-    private HttpClient Http { get; set; } = null!;
+    private static Index? Instance { get; set; }
 
-    private async Task<List<BookDto>> booksRequest(int page, int amount)
+    protected override void OnInitialized()
     {
-        return await Http.GetFromJsonAsync<List<BookDto>>(
-                $"books?seed={Seed}&page={page}&amount={amount}&likes={Likes}&reviews={Reviews}"
-            ) ?? new List<BookDto>();
+        Instance = this;
     }
 
-    private static int SeedPageCombine(int seed, int page)
+    public void Dispose()
     {
-        return HashCode.Combine(seed, page);
+        Instance = null;
     }
 }

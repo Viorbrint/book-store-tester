@@ -10,27 +10,15 @@ public class Review
 
     public string Company { get; }
 
-    private Faker Faker { get; } = new Faker();
-
-    public Review()
+    public Review(Faker faker)
     {
-        Author = Faker.Random.ReplaceNumbers(Faker.Name.FullName());
-        Text = Faker.Lorem.Sentence();
-        Company = Faker.Company.CompanyName();
+        Author = faker.Random.ReplaceNumbers(faker.Name.FullName());
+        Text = faker.Lorem.Sentence();
+        Company = faker.Company.CompanyName();
     }
 
-    public static IEnumerable<Review> GenerateReviews(int amount)
+    public static IEnumerable<Review> GenerateReviews(int amount, Faker faker)
     {
-        return Enumerable.Range(1, amount).Select(_ => new Review());
-    }
-
-    public ReviewDto ToDto()
-    {
-        return new ReviewDto
-        {
-            Author = this.Author,
-            Text = this.Text,
-            Company = this.Company,
-        };
+        return Enumerable.Range(1, amount).Select(_ => new Review(faker));
     }
 }

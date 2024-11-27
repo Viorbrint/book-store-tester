@@ -30,5 +30,15 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+<script>
+    let flag = true;
+    window.addEventListener('scroll', async () => {
+        if (flag && window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+            flag = false;
+            await DotNet.invokeMethodAsync('BookStoreTester', 'OnScrollAsync');
+            flag = true;
+        }
+    });
+</script>
 </body>
 </html>

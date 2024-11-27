@@ -18,44 +18,27 @@ public class Book
 
     public List<string> Authors { get; }
 
-    private Faker Faker { get; } = new Faker();
-
-    public Book(int likes, int reviews)
+    public Book(int likes, int reviews, Faker faker)
     {
-        ISBN = Faker.Random.ReplaceNumbers("978-#-##-######-#");
-        Title = Faker.Commerce.Product();
+        ISBN = faker.Random.ReplaceNumbers("978-#-##-######-#");
+        Title = faker.Commerce.Product();
         Authors = Enumerable
-            .Range(1, Faker.Random.Int(1, 2))
-            .Select(_ => Faker.Name.FullName())
+            .Range(1, faker.Random.Int(1, 2))
+            .Select(_ => faker.Name.FullName())
             .ToList();
-        PublishInfo = new PublishInfo(Faker);
+        PublishInfo = new PublishInfo(faker);
         Likes = likes;
-        ImageUrl = Faker.Image.LoremFlickrUrl(200, 300, "cover");
-        Reviews = Review.GenerateReviews(reviews).ToList();
+        ImageUrl = faker.Image.LoremFlickrUrl(200, 300, "Cat");
+        Reviews = Review.GenerateReviews(reviews, faker).ToList();
     }
 
-    public BookDto ToDto()
+    public void setReviews(int amount, Faker faker)
     {
-        return new BookDto
-        {
-            ISBN = this.ISBN,
-            Title = this.Title,
-            ImageUrl = this.ImageUrl,
-            Authors = this.Authors,
-            PublishInfo = this.PublishInfo.toDto(),
-            Likes = this.Likes,
-            Reviews = this.Reviews.Select(r => r.ToDto()).ToList(),
-        };
+        Reviews = Review.GenerateReviews(amount, faker).ToList();
     }
 
-    public void setReviews(int amount)
+    public static IEnumerable<Book> GenerateBooks(int amount, int likes, int reviews, Faker faker)
     {
-        Reviews = Review.GenerateReviews(amount).ToList();
-    }
-
-    public static IEnumerable<Book> GenerateBooks(int amount, int likes, int reviews)
-    {
-        System.Console.WriteLine("GenerateBooks");
-        return Enumerable.Range(1, amount).Select(_ => new Book(likes, reviews));
+        return Enumerable.Range(1, amount).Select(_ => new Book(likes, reviews, faker));
     }
 }
