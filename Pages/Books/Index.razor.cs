@@ -1,4 +1,3 @@
-using Bogus;
 using BookStoreTester.Helpers;
 using BookStoreTester.Models;
 using Microsoft.AspNetCore.Components;
@@ -8,7 +7,7 @@ namespace BookStoreTester.Pages.Books;
 
 public partial class Index : ComponentBase
 {
-    private Virtualize<Book> _virtualizeRef;
+    private Virtualize<BookDto> _virtualizeRef;
 
     private string _selectedLocale = LocaleHelper.GetDefault();
 
@@ -64,19 +63,20 @@ public partial class Index : ComponentBase
             _reviews = value;
             foreach (var book in Books)
             {
-                book.setReviews(Times.ToInt(value));
+                book.Reviews = Review
+                    .GenerateReviews(Times.ToInt(value))
+                    .Select(r => r.ToDto())
+                    .ToList();
             }
             _virtualizeRef.RefreshDataAsync();
         }
     }
 
-    private IEnumerable<Book> Books { get; set; } = [];
+    private IEnumerable<BookDto> Books { get; set; } = [];
 
     private string? ExpandedBook { get; set; } = null;
 
     private bool IsLoading = false;
-
-    private Faker _faker = null!;
 
     private void ToggleDetails(string isbn)
     {
@@ -88,19 +88,9 @@ public partial class Index : ComponentBase
         Seed = new Random().Next(0, 100000);
     }
 
-    private ValueTask<ItemsProviderResult<Book>> LoadBooks(ItemsProviderRequest request)
+    private async ValueTask<ItemsProviderResult<BookDto>> LoadBooks(ItemsProviderRequest request)
     {
-        Console.WriteLine($"StartIndex: {request.StartIndex}, Count: {request.Count}");
-
-        var books = Enumerable
-            .Range(request.StartIndex, request.Count)
-            .Select(index =>
-            {
-                var bookSeed = SeedPageCombine(Seed, index);
-                Randomizer.Seed = new Random(bookSeed);
-                return new Book(Times.ToInt(Likes), Times.ToInt(Reviews));
-            })
-            .ToList();
+        var books = await booksRequest(request.StartIndex / request.Count, request.Count);
 
         Console.WriteLine($"Generated {books.Count()} books:");
         foreach (var book in books)
@@ -108,7 +98,17 @@ public partial class Index : ComponentBase
             Console.WriteLine($"ISBN: {book.ISBN}, Title: {book.Title}");
         }
 
-        return new ValueTask<ItemsProviderResult<Book>>(new ItemsProviderResult<Book>(books, 1000));
+        return new ItemsProviderResult<BookDto>(books, 1000);
+    }
+
+    [Inject]
+    private HttpClient Http { get; set; } = null!;
+
+    private async Task<List<BookDto>> booksRequest(int page, int amount)
+    {
+        return await Http.GetFromJsonAsync<List<BookDto>>(
+                $"books?seed={Seed}&page={page}&amount={amount}&likes={Likes}&reviews={Reviews}"
+            ) ?? new List<BookDto>();
     }
 
     private static int SeedPageCombine(int seed, int page)

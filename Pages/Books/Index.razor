@@ -44,7 +44,7 @@
         </thead>
         <tbody>
     <Virtualize ItemsProvider="LoadBooks" Context="book" @ref="_virtualizeRef" OverscanCount="20">
-            <tr @onclick="() => ToggleDetails(book.ISBN)" @key="string.Concat(book.ISBN, book.Title, book.Authors, book.PublishInfo)"> 
+            <tr @onclick="() => ToggleDetails(book.ISBN)" @key="string.Concat(book.ISBN, book.Title)"> 
                 <td>
                     <span class="arrow">
                         @if (ExpandedBook == book.ISBN)

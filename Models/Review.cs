@@ -1,27 +1,36 @@
 using Bogus;
 
-namespace BookStoreTester.Models
+namespace BookStoreTester.Models;
+
+public class Review
 {
-    public class Review
+    public string Author { get; }
+
+    public string Text { get; }
+
+    public string Company { get; }
+
+    private Faker Faker { get; } = new Faker();
+
+    public Review()
     {
-        public string Author { get; }
+        Author = Faker.Random.ReplaceNumbers(Faker.Name.FullName());
+        Text = Faker.Lorem.Sentence();
+        Company = Faker.Company.CompanyName();
+    }
 
-        public string Text { get; }
+    public static IEnumerable<Review> GenerateReviews(int amount)
+    {
+        return Enumerable.Range(1, amount).Select(_ => new Review());
+    }
 
-        public string Company { get; }
-
-        private Faker Faker { get; } = new Faker();
-
-        public Review()
+    public ReviewDto ToDto()
+    {
+        return new ReviewDto
         {
-            Author = Faker.Random.ReplaceNumbers(Faker.Name.FullName());
-            Text = Faker.Lorem.Sentence();
-            Company = Faker.Company.CompanyName();
-        }
-
-        public static IEnumerable<Review> GenerateReviews(int amount)
-        {
-            return Enumerable.Range(1, amount).Select(_ => new Review());
-        }
+            Author = this.Author,
+            Text = this.Text,
+            Company = this.Company,
+        };
     }
 }

@@ -2,6 +2,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddControllers();
+
+builder.Services.AddScoped(_ => new HttpClient
+{
+    BaseAddress = new Uri("http://localhost:5025/api/"),
+});
 
 var app = builder.Build();
 
@@ -21,5 +27,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapControllers();
 
 app.Run();

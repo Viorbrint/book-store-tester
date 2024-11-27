@@ -16,7 +16,7 @@ public class Book
 
     public List<Review> Reviews { get; private set; }
 
-    public Authors Authors { get; }
+    public List<string> Authors { get; }
 
     private Faker Faker { get; } = new Faker();
 
@@ -24,11 +24,28 @@ public class Book
     {
         ISBN = Faker.Random.ReplaceNumbers("978-#-##-######-#");
         Title = Faker.Commerce.Product();
-        Authors = new Authors(Faker);
+        Authors = Enumerable
+            .Range(1, Faker.Random.Int(1, 2))
+            .Select(_ => Faker.Name.FullName())
+            .ToList();
         PublishInfo = new PublishInfo(Faker);
         Likes = likes;
         ImageUrl = Faker.Image.LoremFlickrUrl(200, 300, "cover");
-        setReviews(reviews);
+        Reviews = Review.GenerateReviews(reviews).ToList();
+    }
+
+    public BookDto ToDto()
+    {
+        return new BookDto
+        {
+            ISBN = this.ISBN,
+            Title = this.Title,
+            ImageUrl = this.ImageUrl,
+            Authors = this.Authors,
+            PublishInfo = this.PublishInfo.toDto(),
+            Likes = this.Likes,
+            Reviews = this.Reviews.Select(r => r.ToDto()).ToList(),
+        };
     }
 
     public void setReviews(int amount)

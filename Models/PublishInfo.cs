@@ -14,4 +14,9 @@ public class PublishInfo
             .Date.BetweenDateOnly(new DateOnly(2000, 1, 1), DateOnly.FromDateTime(DateTime.Now))
             .ToString("yyyy");
     }
+
+    public PublishInfoDto toDto()
+    {
+        return new PublishInfoDto { Publisher = this.Publisher, PublishYear = this.PublishYear };
+    }
 }
