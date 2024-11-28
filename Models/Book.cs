@@ -18,17 +18,19 @@ public class Book
 
     public List<string> Authors { get; }
 
-    public Book(int likes, int reviews, Faker faker)
+    public Book(int likes, int reviews, Faker faker, ImageService imageService)
     {
+        int minAuthors = 1;
+        int maxAuthors = 2;
         ISBN = faker.Random.ReplaceNumbers("978-#-##-######-#");
         Title = faker.Commerce.Product();
         Authors = Enumerable
-            .Range(1, faker.Random.Int(1, 2))
+            .Range(1, faker.Random.Int(minAuthors, maxAuthors))
             .Select(_ => faker.Name.FullName())
             .ToList();
         PublishInfo = new PublishInfo(faker);
         Likes = likes;
-        ImageUrl = faker.Image.LoremFlickrUrl(200, 300, "Cat");
+        ImageUrl = imageService.GenerateUrl(faker);
         Reviews = Review.GenerateReviews(reviews, faker).ToList();
     }
 
@@ -37,8 +39,16 @@ public class Book
         Reviews = Review.GenerateReviews(amount, faker).ToList();
     }
 
-    public static IEnumerable<Book> GenerateBooks(int amount, int likes, int reviews, Faker faker)
+    public static IEnumerable<Book> GenerateBooks(
+        int amount,
+        int likes,
+        int reviews,
+        Faker faker,
+        ImageService imageService
+    )
     {
-        return Enumerable.Range(1, amount).Select(_ => new Book(likes, reviews, faker));
+        return Enumerable
+            .Range(1, amount)
+            .Select(_ => new Book(likes, reviews, faker, imageService));
     }
 }

@@ -9,12 +9,19 @@ namespace BookStoreTester.Pages.Books;
 
 public partial class Index : ComponentBase
 {
-    private bool IsGalleryView { get; set; } = false;
+    private const int FirstPage = 1;
 
-    private void ToggleView(bool isGallery)
-    {
-        IsGalleryView = isGallery;
-    }
+    private const int PageSize = 20;
+
+    private const int DefaultLikesMult10 = 50;
+
+    private const int DefaultSeed = 12345;
+
+    private const int DefaultReviews = 5;
+
+    private int Page { get; set; } = FirstPage;
+
+    private bool IsGalleryView { get; set; } = false;
 
     private string _selectedLocale = LocaleHelper.GetDefault();
 
@@ -29,7 +36,8 @@ public partial class Index : ComponentBase
         }
     }
 
-    private int _likesMult10 = 50;
+    private int _likesMult10 = DefaultLikesMult10;
+
     private int LikesMult10
     {
         get => _likesMult10;
@@ -48,7 +56,7 @@ public partial class Index : ComponentBase
         get => LikesMult10 / 10.0;
     }
 
-    private int _seed = 12345;
+    private int _seed = DefaultSeed;
 
     private int Seed
     {
@@ -60,7 +68,7 @@ public partial class Index : ComponentBase
         }
     }
 
-    private double _reviews = 5;
+    private double _reviews = DefaultReviews;
 
     private double Reviews
     {
@@ -78,24 +86,34 @@ public partial class Index : ComponentBase
     private List<Book> Books { get; set; } = [];
 
     [Inject]
+    private ImageService ImageService { get; set; } = null!;
+
+    [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
 
     private string? ExpandedBook { get; set; } = null;
 
     private Faker Faker { get; set; } = new Faker(LocaleHelper.GetCode(LocaleHelper.GetDefault()));
 
-    private async Task ExportToCSV()
-    {
-        var csv = new CsvExport();
-        csv.AddRows(Books.Select(book => new BookCsv(book)));
-        string export = csv.Export();
-        await JSRuntime.InvokeVoidAsync("saveAsFile", "books.csv", export);
-    }
-
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         LoadMoreBooks();
+    }
+
+    private void ToggleView(bool isGallery)
+    {
+        IsGalleryView = isGallery;
+    }
+
+    private async Task ExportToCSV()
+    {
+        const string Filename = "books.csv";
+        const string FuncName = "saveAsFile";
+        var csv = new CsvExport();
+        csv.AddRows(Books.Select(book => new BookCsv(book)));
+        string export = csv.Export();
+        await JSRuntime.InvokeVoidAsync(FuncName, Filename, export);
     }
 
     private void ToggleDetails(string isbn)
@@ -105,18 +123,10 @@ public partial class Index : ComponentBase
 
     private void RandomizeSeed()
     {
-        Seed = new Random().Next(0, 100000);
+        const int min = 0;
+        const int max = 100000;
+        Seed = new Random().Next(min, max);
     }
-
-    private int _page = 1;
-
-    private int Page
-    {
-        get => _page;
-        set { _page = value; }
-    }
-
-    private const int PageSize = 20;
 
     private void LoadMoreBooks()
     {
@@ -125,7 +135,8 @@ public partial class Index : ComponentBase
             PageSize,
             Times.ToInt(Likes),
             Times.ToInt(Reviews),
-            Faker
+            Faker,
+            ImageService
         );
         Books.AddRange(newBooks);
         Page++;
@@ -134,14 +145,20 @@ public partial class Index : ComponentBase
 
     private void SetRandom()
     {
-        var bookSeed = Seed ^ Page;
+        var bookSeed = CombineSeedPage(Seed, Page);
         Randomizer.Seed = new Random(bookSeed);
         Faker = new Faker(LocaleHelper.GetCode(SelectedLocale));
     }
 
+    private int CombineSeedPage(int seed, int page)
+    {
+        const int mult = 31;
+        return seed + page * mult;
+    }
+
     private void ResetBooks()
     {
-        Page = 1;
+        Page = FirstPage;
         Books = [];
 
         LoadMoreBooks();
