@@ -31,11 +31,6 @@ public class Book
         Reviews = Review.GenerateReviews(reviews, faker).ToList();
     }
 
-    public void SetReviews(int amount, Faker faker)
-    {
-        Reviews = Review.GenerateReviews(amount, faker).ToList();
-    }
-
     public static IEnumerable<Book> GenerateBooks(
         int amount,
         int likes,
