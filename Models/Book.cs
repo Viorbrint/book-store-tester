@@ -34,7 +34,7 @@ public class Book
         Reviews = Review.GenerateReviews(reviews, faker).ToList();
     }
 
-    public void setReviews(int amount, Faker faker)
+    public void SetReviews(int amount, Faker faker)
     {
         Reviews = Review.GenerateReviews(amount, faker).ToList();
     }

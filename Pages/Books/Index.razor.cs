@@ -78,7 +78,7 @@ public partial class Index : ComponentBase
             _reviews = value;
             foreach (var book in Books)
             {
-                book.setReviews(Times.ToInt(value), Faker);
+                book.SetReviews(Times.ToInt(value), Faker);
             }
         }
     }
