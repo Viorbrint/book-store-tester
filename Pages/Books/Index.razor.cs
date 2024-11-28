@@ -1,7 +1,7 @@
-using System.Text;
 using Bogus;
 using BookStoreTester.Helpers;
 using BookStoreTester.Models;
+using Csv;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -86,18 +86,10 @@ public partial class Index : ComponentBase
 
     private async Task ExportToCSV()
     {
-        // var csv = new StringBuilder();
-        // csv.AppendLine("ISBN,Title,Authors,Publisher,Likes");
-        //
-        // foreach (var book in Books)
-        // {
-        //     var authors = string.Join(", ", book.Authors);
-        //     var likes = book.Likes;
-        //     csv.AppendLine($"{book.ISBN},{book.Title},{authors},{book.PublishInfo},{likes}");
-        // }
-        //
-        // await JSRuntime.InvokeVoidAsync("saveAsFile", "books.csv", csv.ToString());
-        throw new NotImplementedException();
+        var csv = new CsvExport();
+        csv.AddRows(Books.Select(book => new BookCsv(book)));
+        string export = csv.Export();
+        await JSRuntime.InvokeVoidAsync("saveAsFile", "books.csv", export);
     }
 
     protected override async Task OnInitializedAsync()

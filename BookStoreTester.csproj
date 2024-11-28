@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Bogus" Version="35.6.1" />
+    <PackageReference Include="CsvExport" Version="2.0.1" />
   </ItemGroup>
 
 </Project>
