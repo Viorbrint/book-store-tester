@@ -76,7 +76,7 @@
                         <img src="@book.ImageUrl" alt="Book @(Books.IndexOf(book) + 1) cover" class="card-img-top" style="height: 250px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title">@book.Title</h5>
-                            <p class="card-text">
+                            <p class="card-text" style="height: 70px">
                                 <strong>by @AuthorsFormatter.Format(book.Authors)</strong><br>
                                 <small>@PublishInfoFormatter.Format(book.PublishInfo)</small>
                             </p>
@@ -96,7 +96,7 @@
                                     @foreach (var review in book.Reviews)
                                     {
                                         <li>
-                                            <blockquote class="blockquote">
+                                            <blockquote class="blockquote fs-6">
                                                 <p>@review.Text</p>
                                                 <footer class="blockquote-footer">@ReviewFormatter.FormatAuthor(review)</footer>
                                             </blockquote>
