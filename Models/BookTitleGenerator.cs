@@ -30,11 +30,11 @@ public class BookTitleGenerator
         var localizedWords = WordsProvider.GetLocalizedWords(locale);
 
         string title = template
-            .Replace("{Adjective}", _faker.PickRandom(localizedWords.Adjectives)) // Прилагательное
-            .Replace("{Noun}", _faker.PickRandom(localizedWords.Nouns)) // Существительное
-            .Replace("{Place}", _faker.Address.City()) // Место
-            .Replace("{Hero}", _faker.Name.FirstName()) // Герой
-            .Replace("{Action}", _faker.Lorem.Word()); // Действие
+            .Replace("{Adjective}", _faker.PickRandom(localizedWords.Adjectives))
+            .Replace("{Noun}", _faker.PickRandom(localizedWords.Nouns))
+            .Replace("{Place}", _faker.Address.City())
+            .Replace("{Hero}", _faker.Name.FirstName())
+            .Replace("{Action}", _faker.Lorem.Word());
 
         return LocalizeTemplate(title, locale);
     }
@@ -44,24 +44,24 @@ public class BookTitleGenerator
         if (locale == "ru")
         {
             template = template
-                .Replace("The", "") // Убираем "The"
-                .Replace("of", "из") // Переводим "of" в "из"
-                .Replace("in", "в") // Переводим "in" в "в"
-                .Replace("and the", "и") // Переводим "and the" в "и"
-                .Replace("Chronicles", "Хроники") // Переводим "Chronicles" в "Хроники"
-                .Replace("Secrets", "Секреты") // Переводим "Secrets" в "Секреты"
-                .Replace("Tales", "Сказки"); // Переводим "Tales" в "Сказки"
+                .Replace("The", "")
+                .Replace("of", "из")
+                .Replace("in", "в")
+                .Replace("and the", "и")
+                .Replace("Chronicles", "Хроники")
+                .Replace("Secrets", "Секреты")
+                .Replace("Tales", "Сказки");
         }
         else if (locale == "fr")
         {
             template = template
-                .Replace("The", "Le") // Переводим "The" как "Le"
-                .Replace("of", "de") // Переводим "of" в "de"
-                .Replace("in", "dans") // Переводим "in" в "dans"
-                .Replace("and the", "et le") // Переводим "and the" в "et le"
-                .Replace("Chronicles", "Chroniques") // Переводим "Chronicles" в "Chroniques"
-                .Replace("Secrets", "Secrets") // "Secrets" в "Secrets"
-                .Replace("Tales", "Contes"); // "Tales" в "Contes"
+                .Replace("The", "Le")
+                .Replace("of", "de")
+                .Replace("in", "dans")
+                .Replace("and the", "et le")
+                .Replace("Chronicles", "Chroniques")
+                .Replace("Secrets", "Secrets")
+                .Replace("Tales", "Contes");
         }
 
         return template;

@@ -4,11 +4,8 @@
 @using Microsoft.JSInterop
 
 <div class="container mt-4">
-    <!-- Settings Panel - Stick to the top -->
     <div class="row align-items-center mb-3 sticky-lg-top bg-white shadow-sm z-index-1 p-3">
-        <!-- Фильтры и настройки -->
         <div class="col-lg-9 col-md-12 d-flex flex-wrap align-items-center gap-3">
-            <!-- Language -->
             <div class="d-flex flex-column align-items-start">
                 <label for="language" class="form-label">Language</label>
                 <select id="language" class="form-select w-auto" @bind="SelectedLocale">
@@ -19,7 +16,6 @@
                 </select>
             </div>
 
-            <!-- Seed -->
             <div class="d-flex flex-column align-items-start">
                 <label for="seed-input" class="form-label">Seed</label>
                 <div class="input-group">
@@ -30,7 +26,6 @@
                 </div>
             </div>
 
-            <!-- Likes -->
             <div class="d-flex flex-column align-items-start">
                 <label for="likes-slider" class="form-label">Likes</label>
                 <div class="d-flex align-items-center gap-2">
@@ -39,16 +34,13 @@
                 </div>
             </div>
 
-            <!-- Review -->
             <div class="d-flex flex-column align-items-start">
                 <label for="review-filter" class="form-label">Review</label>
                 <input id="review-filter" type="number" class="form-control w-auto" step="0.1" @bind="Reviews">
             </div>
         </div>
 
-        <!-- Кнопки действий -->
         <div class="col-lg-3 col-md-12 d-flex flex-wrap justify-content-lg-end justify-content-start align-items-center gap-3 mt-lg-0 mt-3">
-            <!-- View Mode Toggle -->
             <div class="btn-group" role="group" aria-label="View toggle">
                 <button class="btn btn-outline-primary @(!IsGalleryView ? "active" : "")" @onclick="() => ToggleView(false)">
                     Table View
@@ -58,7 +50,6 @@
                 </button>
             </div>
 
-            <!-- Export to CSV -->
             <button class="btn btn-outline-success" @onclick="ExportToCSV">
                 <i class="bi bi-download"></i> Export to CSV
             </button>
@@ -67,23 +58,19 @@
 
     @if (IsGalleryView)
     {
-        <!-- Gallery View -->
         <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
             @foreach(var book in Books)
             {
                 <div class="col">
                     <div class="card">
                         <div class="position-relative">
-                            <!-- Автор сверху картинки -->
                             <div class="position-absolute top-0 start-0 text-white p-3 w-100 text-center" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); font-family: 'Garamond', sans-serif;">
                                 <p class="m-0 fs-5 fw-bold">@AuthorsFormatter.Format(book.Authors)</p>
                             </div>
 
-                            <!-- Картинка -->
                             <img src="@book.ImageUrl" alt="Book @(Books.IndexOf(book) + 1) cover" class="card-img-top" style="height: 250px; object-fit: cover;">
 
 
-                            <!-- Название снизу картинки -->
                             <div class="position-absolute bottom-0 start-0 text-white p-3 w-100 text-center" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); font-family: 'Garamond', sans-serif;">
                                 <h5 class="m-0 fw-bold">@book.Title</h5>
                             </div>
@@ -127,7 +114,6 @@
     }
     else
     {
-        <!-- Table View -->
         <table class="table table-hover">
             <thead class="table-light">
                 <tr>
@@ -158,24 +144,19 @@
                         <tr class="details-row">
                             <td colspan="6" class="p-4">
                                 <div class="d-flex gap-4">
-                                    <!-- Картинка обложки с лайками под ней -->
                                     <div class="d-flex flex-column align-items-center">
                                         <div class="position-relative">
-                                            <!-- Автор сверху картинки -->
                                             <div class="position-absolute top-0 start-0 text-white p-3 w-100 text-center" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); font-family: 'Garamond', sans-serif;">
                                                 <p class="m-0">@AuthorsFormatter.Format(book.Authors)</p>
                                             </div>
 
-                                            <!-- Картинка -->
                                             <img src="@book.ImageUrl" alt="Book @(Books.IndexOf(book) + 1) cover" class="img-thumbnail" style="height: 250px; width: auto;">
 
-                                            <!-- Название снизу картинки -->
                                             <div class="position-absolute bottom-0 start-0 text-white p-3 w-100 text-center" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); font-family: 'Garamond', sans-serif;">
                                                 <h5 class="m-0 fw-bold">@book.Title</h5>
                                             </div>
                                         </div>
 
-                                        <!-- Лайки под картинкой -->
                                         <div class="mt-3 d-flex align-items-center justify-content-center bg-primary text-white rounded-pill px-3 py-2">
                                             <i class="bi bi-hand-thumbs-up me-2"></i>
                                             <span>@book.Likes</span>
@@ -183,12 +164,10 @@
                                     </div>
 
                                     <div class="flex-grow-1">
-                                        <!-- Название книги -->
                                         <h4 class="mb-0 fw-bold">@book.Title</h4>
                                         <p class="fs-6 fw-bold mb-1">by <i>@AuthorsFormatter.Format(book.Authors)</i></p>
                                         <p class="text-muted fs-6 mb-4">@PublishInfoFormatter.Format(book.PublishInfo)</p>
 
-                                        <!-- Отзывы -->
                                         <div class="reviews-section">
                                             <p class="fw-bold fs-6 mb-0">Review</p>
                                             @if (book.Reviews.Any())

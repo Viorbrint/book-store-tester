@@ -19,7 +19,7 @@ public class Book
         ISBN = faker.Random.ReplaceNumbers("978-#-##-######-#");
 
         var titleGenerator = new BookTitleGenerator(faker);
-        Title = titleGenerator.GenerateBookTitle(faker.Locale); // Генерируем название книги
+        Title = titleGenerator.GenerateBookTitle(faker.Locale);
 
         Authors = Enumerable
             .Range(1, faker.Random.Int(minAuthors, maxAuthors))

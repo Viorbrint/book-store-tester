@@ -21,11 +21,11 @@ public class ReviewTextGenerator
         var words = WordsProvider.GetLocalizedWords(locale);
 
         return template
-            .Replace("{Adjective}", _faker.PickRandom(localizedWords.Adjectives)) // Прилагательное
-            .Replace("{Noun}", _faker.PickRandom(localizedWords.Nouns)) // Существительное
-            .Replace("{Verb}", _faker.PickRandom(localizedWords.Verbs)) // Глагол
-            .Replace("{Place}", _faker.Address.City()) // Место
-            .Replace("{Hero}", _faker.Name.FirstName()); // Герой
+            .Replace("{Adjective}", _faker.PickRandom(localizedWords.Adjectives))
+            .Replace("{Noun}", _faker.PickRandom(localizedWords.Nouns))
+            .Replace("{Verb}", _faker.PickRandom(localizedWords.Verbs))
+            .Replace("{Place}", _faker.Address.City())
+            .Replace("{Hero}", _faker.Name.FirstName());
     }
 
     private List<string> GetReviewTemplates(string locale)
