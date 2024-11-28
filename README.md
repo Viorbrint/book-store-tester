@@ -1,5 +1,7 @@
 # BookStoreTester
 
+[![Watch the video](https://img.youtube.com/vi/j0BNrRH84Cw/0.jpg)](https://youtu.be/j0BNrRH84Cw)
+
 **BookStoreTester** is a web application designed for testing bookstore applications by generating fake book data. The app allows you to customize parameters such as language, region, average likes, and reviews per book. It supports infinite scrolling and exporting data to CSV.
 
 ## Features
