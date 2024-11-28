@@ -7,8 +7,6 @@ public static class LocaleHelper
         {
             ["English (US)"] = "en",
             ["French (FR)"] = "fr",
-            ["German (DE)"] = "de",
-            ["Spanish (ES)"] = "es",
             ["Russian (RU)"] = "ru",
         };
 

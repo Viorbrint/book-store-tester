@@ -5,17 +5,11 @@ namespace BookStoreTester.Models;
 public class Book
 {
     public string ISBN { get; }
-
     public string Title { get; }
-
     public PublishInfo PublishInfo { get; }
-
     public int Likes { get; set; }
-
     public string ImageUrl { get; }
-
     public List<Review> Reviews { get; private set; }
-
     public List<string> Authors { get; }
 
     public Book(int likes, int reviews, Faker faker, ImageService imageService)
@@ -23,7 +17,10 @@ public class Book
         int minAuthors = 1;
         int maxAuthors = 2;
         ISBN = faker.Random.ReplaceNumbers("978-#-##-######-#");
-        Title = faker.Commerce.Product();
+
+        var titleGenerator = new BookTitleGenerator(faker);
+        Title = titleGenerator.GenerateBookTitle(faker.Locale); // Генерируем название книги
+
         Authors = Enumerable
             .Range(1, faker.Random.Int(minAuthors, maxAuthors))
             .Select(_ => faker.Name.FullName())

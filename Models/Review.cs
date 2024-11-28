@@ -13,7 +13,8 @@ public class Review
     public Review(Faker faker)
     {
         Author = faker.Random.ReplaceNumbers(faker.Name.FullName());
-        Text = faker.Lorem.Sentence();
+        var textGenerator = new ReviewTextGenerator(faker);
+        Text = textGenerator.GenerateReviewText();
         Company = faker.Company.CompanyName();
     }
 
